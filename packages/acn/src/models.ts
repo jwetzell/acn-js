@@ -80,8 +80,16 @@ export type SDTJoinAcceptData = {
   reciprocalChannel: number;
 };
 
+export type SDTJoinRefuseData = {
+  leaderComponentID: string;
+  channelNumber: number;
+  memberID: number;
+  reliableSequenceNumber: number;
+  refuseCode: number;
+};
+
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | SDTJoinAcceptData | Uint8Array;
+  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData| Uint8Array;
 };
