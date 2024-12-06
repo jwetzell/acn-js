@@ -45,7 +45,7 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
   const data = bytes.subarray(dataOffset, dataOffset + dataLength);
 
   switch (vector) {
-    case SessionDataTransportVectors.JOIN:
+    case SessionDataTransportVectors.JOIN: {
       const destinationAddress: TransportLayerAddress = {
         type: view.getUint8(dataOffset + 30),
       };
@@ -79,7 +79,7 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
         vector,
         data: joinData,
       };
-
+    }
     default:
       console.error(`unhandled SDT vector: ${vector}`);
       break;
