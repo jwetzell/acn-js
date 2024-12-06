@@ -1,4 +1,5 @@
 import { RootLayerPDU } from '../models';
+import { toHex } from '../utils';
 
 function decode(bytes: Uint8Array): RootLayerPDU {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -43,7 +44,8 @@ function decode(bytes: Uint8Array): RootLayerPDU {
   const vector = view.getUint32(vectorOffset);
   const headerOffset = vectorOffset + 4;
 
-  const header = bytes.subarray(headerOffset, headerOffset + 16);
+  const header = toHex(bytes.subarray(headerOffset, headerOffset + 16));
+
   const dataOffset = headerOffset + 16;
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 4 + 16);

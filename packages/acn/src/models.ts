@@ -16,6 +16,6 @@ export type ACNPacket<PreambleType, PDUBlockType, PostambleType> = {
 
 export type RootLayerPDU = {
   vector: number;
-  header: Uint8Array;
+  header: string;
   data: Uint8Array;
 };
