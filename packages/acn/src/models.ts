@@ -60,7 +60,7 @@ export type TransportLayerAddress = {
   address?: string;
 };
 
-export type SDTJOINData = {
+export type SDTJoinData = {
   componentID: string;
   memberID: number;
   channelNumber: number;
@@ -75,5 +75,5 @@ export type SDTJOINData = {
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJOINData | Uint8Array;
+  data: SDTJoinData | Uint8Array;
 };
