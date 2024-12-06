@@ -72,8 +72,16 @@ export type SDTJoinData = {
   adhocExpiry: number;
 };
 
+export type SDTJoinAcceptData = {
+  leaderComponentID: string;
+  channelNumber: number;
+  memberID: number;
+  reliableSequenceNumber: number;
+  reciprocalChannel: number;
+};
+
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | Uint8Array;
+  data: SDTJoinData | SDTJoinAcceptData | Uint8Array;
 };

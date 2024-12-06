@@ -80,6 +80,19 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
         data: joinData,
       };
     }
+    case SessionDataTransportVectors.JOIN_ACCEPT: {
+      const joinData = {
+        leaderComponentID: toHex(bytes.subarray(dataOffset, dataOffset + 16)),
+        channelNumber: view.getUint16(dataOffset + 16),
+        memberID: view.getUint16(dataOffset + 18),
+        reliableSequenceNumber: view.getUint32(dataOffset + 20),
+        reciprocalChannel: view.getUint16(dataOffset + 24),
+      };
+      return {
+        vector,
+        data: joinData,
+      };
+    }
     default:
       console.error(`unhandled SDT vector: ${vector}`);
       break;
