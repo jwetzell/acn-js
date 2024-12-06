@@ -16,7 +16,7 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
   const dataFlag = (flags & 0x1) === 1;
 
   if (!dataFlag) {
-    // TODO(jwetzell): idk know if this is true
+    // TODO(jwetzell): idk if this is true
     throw new Error('SDT PDU must have data');
   }
 
