@@ -1,6 +1,4 @@
-export enum Protocols {
-  SDT = 1,
-}
+import { TransportLayerAddressType, SDTVector, SDTReasonCode } from './enums';
 
 export type UDPPreamble = {
   preambleSize: number;
@@ -20,32 +18,6 @@ export type RootLayerPDU = {
   data: SessionDataTransportPDU | Uint8Array;
 };
 
-export enum SessionDataTransportVectors {
-  REL_WRAP = 1,
-  UNREL_WRAP,
-  CHANNEL_PARAMS,
-  JOIN,
-  JOIN_REFUSE,
-  JOIN_ACCEPT,
-  LEAVE,
-  LEAVING,
-  CONNECT,
-  CONNECT_ACCEPT,
-  CONNECT_REFUSE,
-  DISCONNECT,
-  DISCONNECTING,
-  ACK,
-  NAK,
-  GET_SESSIONS,
-  SESSIONS,
-}
-
-export enum TransportLayerAddressTypes {
-  SDT_ADDR_NULL = 0,
-  SDT_ADDR_IPV4,
-  SDT_ADDR_IPV6,
-}
-
 export type SDTChannelParams = {
   expiry: number;
   nakOutboundFlag: number;
@@ -55,7 +27,7 @@ export type SDTChannelParams = {
 };
 
 export type TransportLayerAddress = {
-  type: TransportLayerAddressTypes;
+  type: TransportLayerAddressType;
   port?: number;
   address?: string;
 };
@@ -85,7 +57,7 @@ export type SDTJoinRefuseData = {
   channelNumber: number;
   memberID: number;
   reliableSequenceNumber: number;
-  refuseCode: number;
+  refuseCode: SDTReasonCode;
 };
 
 export type SDTLeavingData = {
@@ -93,7 +65,7 @@ export type SDTLeavingData = {
   channelNumber: number;
   memberID: number;
   reliableSequenceNumber: number;
-  reasonCode: number;
+  reasonCode: SDTReasonCode;
 };
 
 export type SDTWrapperData = {
@@ -127,13 +99,13 @@ export type SDTConnectData = {
 export type SDTConnectAcceptData = SDTConnectData;
 export type SDTConnectRefuseData = {
   protocolID: number;
-  refuseCode: number;
+  refuseCode: SDTReasonCode;
 };
 
 export type SDTDisconnectData = SDTConnectData;
 export type SDTDisconnectingData = {
   protocolID: number;
-  reasonCode: number;
+  reasonCode: SDTReasonCode;
 };
 
 export type SDTGetSessionsData = {
@@ -141,7 +113,7 @@ export type SDTGetSessionsData = {
 };
 
 export type SessionDataTransportPDU = {
-  vector: SessionDataTransportVectors;
+  vector: SDTVector;
   // TODO(jwetzell): cleanup these types
   data:
     | SDTJoinData

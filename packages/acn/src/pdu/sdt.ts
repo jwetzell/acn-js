@@ -1,5 +1,5 @@
+import { Protocol, SDTVector } from '../enums';
 import {
-  Protocols,
   SDTAckData,
   SDTConnectAcceptData,
   SDTConnectData,
@@ -14,9 +14,8 @@ import {
   SDTNakData,
   SDTWrapperData,
   SessionDataTransportPDU,
-  SessionDataTransportVectors,
   TransportLayerAddress,
-} from '../models';
+} from '../types';
 import { toHex } from '../utils';
 
 // TODO(jwetzell): work out flag inheritance, will need previous PDU
@@ -115,7 +114,7 @@ function decodeClientBlock(bytes: Uint8Array) {
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 2 + 6);
   let data: SessionDataTransportPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength);
 
-  if (clientProtocol === Protocols.SDT) {
+  if (clientProtocol === Protocol.SDT) {
     data = decode(data);
   } else {
     console.error(`SDT client block contains unknown protocol: ${clientProtocol}`);
@@ -129,7 +128,7 @@ function decodeClientBlock(bytes: Uint8Array) {
 }
 
 function decodeData(
-  vector: SessionDataTransportVectors,
+  vector: SDTVector,
   bytes: Uint8Array
 ):
   | SDTJoinData
@@ -148,7 +147,7 @@ function decodeData(
   | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   switch (vector) {
-    case SessionDataTransportVectors.JOIN: {
+    case SDTVector.JOIN: {
       const destinationAddress: TransportLayerAddress = {
         type: view.getUint8(30),
       };
@@ -180,7 +179,7 @@ function decodeData(
       };
       return joinData;
     }
-    case SessionDataTransportVectors.JOIN_ACCEPT: {
+    case SDTVector.JOIN_ACCEPT: {
       const joinData = {
         leaderComponentID: toHex(bytes.subarray(0, 16)),
         channelNumber: view.getUint16(16),
@@ -190,7 +189,7 @@ function decodeData(
       };
       return joinData;
     }
-    case SessionDataTransportVectors.JOIN_REFUSE: {
+    case SDTVector.JOIN_REFUSE: {
       const joinData = {
         leaderComponentID: toHex(bytes.subarray(0, 16)),
         channelNumber: view.getUint16(16),
@@ -201,8 +200,8 @@ function decodeData(
 
       return joinData;
     }
-    case SessionDataTransportVectors.REL_WRAP:
-    case SessionDataTransportVectors.UNREL_WRAP: {
+    case SDTVector.REL_WRAP:
+    case SDTVector.UNREL_WRAP: {
       const wrapperData: SDTWrapperData = {
         channelNumber: view.getUint16(0),
         totalSequenceNumber: view.getUint32(2),
@@ -216,12 +215,12 @@ function decodeData(
 
       return wrapperData;
     }
-    case SessionDataTransportVectors.ACK: {
+    case SDTVector.ACK: {
       return {
         reliableSequenceNumber: view.getUint32(0),
       };
     }
-    case SessionDataTransportVectors.LEAVING: {
+    case SDTVector.LEAVING: {
       return {
         leaderComponentID: toHex(bytes.subarray(0, 16)),
         channelNumber: view.getUint16(16),
@@ -230,12 +229,12 @@ function decodeData(
         reasonCode: view.getUint8(24),
       };
     }
-    case SessionDataTransportVectors.GET_SESSIONS: {
+    case SDTVector.GET_SESSIONS: {
       return {
         componentID: toHex(bytes.subarray(0, 16)),
       };
     }
-    case SessionDataTransportVectors.NAK: {
+    case SDTVector.NAK: {
       return {
         leaderComponentID: toHex(bytes.subarray(0, 16)),
         channelNumber: view.getUint16(16),
@@ -245,20 +244,20 @@ function decodeData(
         lastMissedSequence: view.getUint32(28),
       };
     }
-    case SessionDataTransportVectors.DISCONNECT:
-    case SessionDataTransportVectors.CONNECT:
-    case SessionDataTransportVectors.CONNECT_ACCEPT: {
+    case SDTVector.DISCONNECT:
+    case SDTVector.CONNECT:
+    case SDTVector.CONNECT_ACCEPT: {
       return {
         protocolID: view.getUint32(0),
       };
     }
-    case SessionDataTransportVectors.CONNECT_REFUSE: {
+    case SDTVector.CONNECT_REFUSE: {
       return {
         protocolID: view.getUint32(0),
         refuseCode: view.getUint8(4),
       };
     }
-    case SessionDataTransportVectors.DISCONNECTING: {
+    case SDTVector.DISCONNECTING: {
       return {
         protocolID: view.getUint32(0),
         reasonCode: view.getUint8(4),
