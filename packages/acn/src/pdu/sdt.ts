@@ -4,6 +4,8 @@ import {
   SDTConnectAcceptData,
   SDTConnectData,
   SDTConnectRefuseData,
+  SDTDisconnectData,
+  SDTDisconnectingData,
   SDTGetSessionsData,
   SDTJoinAcceptData,
   SDTJoinData,
@@ -141,6 +143,8 @@ function decodeData(
   | SDTConnectData
   | SDTConnectAcceptData
   | SDTConnectRefuseData
+  | SDTDisconnectData
+  | SDTDisconnectingData
   | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   switch (vector) {
@@ -241,6 +245,7 @@ function decodeData(
         lastMissedSequence: view.getUint32(28),
       };
     }
+    case SessionDataTransportVectors.DISCONNECT:
     case SessionDataTransportVectors.CONNECT:
     case SessionDataTransportVectors.CONNECT_ACCEPT: {
       return {
@@ -251,6 +256,12 @@ function decodeData(
       return {
         protocolID: view.getUint32(0),
         refuseCode: view.getUint8(4),
+      };
+    }
+    case SessionDataTransportVectors.DISCONNECTING: {
+      return {
+        protocolID: view.getUint32(0),
+        reasonCode: view.getUint8(4),
       };
     }
     default:

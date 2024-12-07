@@ -130,6 +130,12 @@ export type SDTConnectRefuseData = {
   refuseCode: number;
 };
 
+export type SDTDisconnectData = SDTConnectData;
+export type SDTDisconnectingData = {
+  protocolID: number;
+  reasonCode: number;
+};
+
 export type SDTGetSessionsData = {
   componentID: string;
 };
@@ -149,6 +155,8 @@ export type SessionDataTransportPDU = {
     | SDTConnectData
     | SDTConnectAcceptData
     | SDTConnectRefuseData
+    | SDTDisconnectData
+    | SDTDisconnectingData
     | Uint8Array;
 };
 
