@@ -1,6 +1,7 @@
 import {
   Protocols,
   SDTAckData,
+  SDTGetSessionsData,
   SDTJoinAcceptData,
   SDTJoinData,
   SDTJoinRefuseData,
@@ -124,7 +125,7 @@ function decodeClientBlock(bytes: Uint8Array) {
 function decodeData(
   vector: SessionDataTransportVectors,
   bytes: Uint8Array
-): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | Uint8Array {
+): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | SDTGetSessionsData | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   switch (vector) {
     case SessionDataTransportVectors.JOIN: {
@@ -208,6 +209,11 @@ function decodeData(
         reliableSequenceNumber: view.getUint32(20),
         reasonCode: view.getUint8(24),
       };
+    }
+    case SessionDataTransportVectors.GET_SESSIONS: {
+      return {
+        componentID: toHex(bytes.subarray(0, 16))
+      }
     }
     default:
       console.error(`unhandled SDT vector: ${vector}`);
