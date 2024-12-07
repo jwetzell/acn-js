@@ -1,4 +1,4 @@
-import { Protocols, SDTAckData, SDTJoinAcceptData, SDTJoinData, SDTJoinRefuseData, SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
+import { Protocols, SDTAckData, SDTJoinAcceptData, SDTJoinData, SDTJoinRefuseData, SDTLeavingData, SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
 import { toHex } from '../utils';
 
 // TODO(jwetzell): work out flag inheritance, will need previous PDU
@@ -114,7 +114,7 @@ function decodeClientBlock(bytes: Uint8Array) {
 }
 
 
-function decodeData(vector: SessionDataTransportVectors, bytes: Uint8Array): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | Uint8Array {
+function decodeData(vector: SessionDataTransportVectors, bytes: Uint8Array): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
   switch (vector) {
     case SessionDataTransportVectors.JOIN: {
@@ -188,6 +188,15 @@ function decodeData(vector: SessionDataTransportVectors, bytes: Uint8Array): SDT
     case SessionDataTransportVectors.ACK: {
       return {
         reliableSequenceNumber: view.getUint32(0),
+      };
+    }
+    case SessionDataTransportVectors.LEAVING: {
+      return {
+        leaderComponentID: toHex(bytes.subarray(0, 16)),
+        channelNumber: view.getUint16(16),
+        memberID: view.getUint16(18),
+        reliableSequenceNumber: view.getUint32(20),
+        reasonCode: view.getUint8(24),
       };
     }
     default:

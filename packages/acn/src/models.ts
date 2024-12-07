@@ -88,6 +88,14 @@ export type SDTJoinRefuseData = {
   refuseCode: number;
 };
 
+export type SDTLeavingData = {
+  leaderComponentID: string;
+  channelNumber: number;
+  memberID: number;
+  reliableSequenceNumber: number;
+  reasonCode: number;
+};
+
 export type SDTWrapperData = {
   channelNumber: number;
   totalSequenceNumber: number;
@@ -106,7 +114,7 @@ export type SDTAckData = {
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | Uint8Array;
+  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData| Uint8Array;
 };
 
 export type SDTClientBlock = {
