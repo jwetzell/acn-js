@@ -6,6 +6,7 @@ import {
   SDTJoinData,
   SDTJoinRefuseData,
   SDTLeavingData,
+  SDTNakData,
   SDTWrapperData,
   SessionDataTransportPDU,
   SessionDataTransportVectors,
@@ -125,7 +126,16 @@ function decodeClientBlock(bytes: Uint8Array) {
 function decodeData(
   vector: SessionDataTransportVectors,
   bytes: Uint8Array
-): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | SDTGetSessionsData | Uint8Array {
+):
+  | SDTJoinData
+  | SDTJoinAcceptData
+  | SDTJoinRefuseData
+  | SDTWrapperData
+  | SDTAckData
+  | SDTLeavingData
+  | SDTGetSessionsData
+  | SDTNakData
+  | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   switch (vector) {
     case SessionDataTransportVectors.JOIN: {
@@ -212,8 +222,18 @@ function decodeData(
     }
     case SessionDataTransportVectors.GET_SESSIONS: {
       return {
-        componentID: toHex(bytes.subarray(0, 16))
-      }
+        componentID: toHex(bytes.subarray(0, 16)),
+      };
+    }
+    case SessionDataTransportVectors.NAK: {
+      return {
+        leaderComponentID: toHex(bytes.subarray(0, 16)),
+        channelNumber: view.getUint16(16),
+        memberID: view.getUint16(18),
+        reliableSequenceNumber: view.getUint32(20),
+        firstMissedSequence: view.getUint32(24),
+        lastMissedSequence: view.getUint32(28),
+      };
     }
     default:
       console.error(`unhandled SDT vector: ${vector}`);

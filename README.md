@@ -9,7 +9,7 @@ not sure how far I will take this but messing around with E1.17 ACN protocol
     - [x] JOIN_REFUSE
     - [x] JOIN_ACCEPT
     - [x] LEAVING
-    - [ ] NAK
+    - [x] NAK
     - [x] REL_WRAP
     - [x] UNREL_WRAP
     - [x] GET_SESSIONS

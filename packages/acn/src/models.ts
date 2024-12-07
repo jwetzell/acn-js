@@ -111,6 +111,15 @@ export type SDTAckData = {
   reliableSequenceNumber: number;
 };
 
+export type SDTNakData = {
+  leaderComponenetID: string;
+  channelNumber: number;
+  memberID: number;
+  reliableSequenceNumber: number;
+  firstMissedSequence: number;
+  lastMissedSequence: number;
+};
+
 export type SDTGetSessionsData = {
   componentID: string;
 };
@@ -118,7 +127,16 @@ export type SDTGetSessionsData = {
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | SDTGetSessionsData | Uint8Array;
+  data:
+    | SDTJoinData
+    | SDTJoinAcceptData
+    | SDTJoinRefuseData
+    | SDTWrapperData
+    | SDTAckData
+    | SDTLeavingData
+    | SDTGetSessionsData
+    | SDTNakData
+    | Uint8Array;
 };
 
 export type SDTClientBlock = {
