@@ -1,6 +1,6 @@
 export enum Protocols {
-  SDT = 1
-};
+  SDT = 1,
+}
 
 export type UDPPreamble = {
   preambleSize: number;
@@ -114,12 +114,12 @@ export type SDTAckData = {
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData| Uint8Array;
+  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | Uint8Array;
 };
 
 export type SDTClientBlock = {
-  memberID: number
-  clientProtocol: number
-  association: number
-  data: SessionDataTransportPDU | Uint8Array
-}
+  memberID: number;
+  clientProtocol: number;
+  association: number;
+  data: SessionDataTransportPDU | Uint8Array;
+};

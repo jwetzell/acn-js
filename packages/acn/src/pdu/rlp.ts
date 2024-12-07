@@ -54,7 +54,7 @@ function decode(bytes: Uint8Array): RootLayerPDU {
 
   if (vector === Protocols.SDT) {
     data = pdu.sdt.decode(data);
-  } 
+  }
 
   return {
     vector,

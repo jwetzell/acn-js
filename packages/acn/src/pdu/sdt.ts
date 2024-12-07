@@ -1,4 +1,15 @@
-import { Protocols, SDTAckData, SDTJoinAcceptData, SDTJoinData, SDTJoinRefuseData, SDTLeavingData, SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
+import {
+  Protocols,
+  SDTAckData,
+  SDTJoinAcceptData,
+  SDTJoinData,
+  SDTJoinRefuseData,
+  SDTLeavingData,
+  SDTWrapperData,
+  SessionDataTransportPDU,
+  SessionDataTransportVectors,
+  TransportLayerAddress,
+} from '../models';
 import { toHex } from '../utils';
 
 // TODO(jwetzell): work out flag inheritance, will need previous PDU
@@ -50,8 +61,8 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
 }
 
 function decodeClientBlock(bytes: Uint8Array) {
-  if(bytes.byteLength === 0){
-    return undefined
+  if (bytes.byteLength === 0) {
+    return undefined;
   }
 
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -88,34 +99,33 @@ function decodeClientBlock(bytes: Uint8Array) {
 
   const memberID = view.getUint16(vectorOffset);
 
-
-  const headerOffset = vectorOffset + 2
-  const clientProtocol = view.getUint32(headerOffset)
-  const association = view.getUint16(headerOffset+4)
-
+  const headerOffset = vectorOffset + 2;
+  const clientProtocol = view.getUint32(headerOffset);
+  const association = view.getUint16(headerOffset + 4);
 
   const dataOffset = headerOffset + 6;
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 2 + 6);
-  let data: SessionDataTransportPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength)
+  let data: SessionDataTransportPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength);
 
-
-  if(clientProtocol === Protocols.SDT){
-    data = decode(data)
+  if (clientProtocol === Protocols.SDT) {
+    data = decode(data);
   } else {
-    console.error(`SDT client block contains unknown protocol: ${clientProtocol}`)
+    console.error(`SDT client block contains unknown protocol: ${clientProtocol}`);
   }
   return {
     memberID,
     clientProtocol,
     association,
-    data
-  }
+    data,
+  };
 }
 
-
-function decodeData(vector: SessionDataTransportVectors, bytes: Uint8Array): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | Uint8Array {
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+function decodeData(
+  vector: SessionDataTransportVectors,
+  bytes: Uint8Array
+): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | SDTLeavingData | Uint8Array {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   switch (vector) {
     case SessionDataTransportVectors.JOIN: {
       const destinationAddress: TransportLayerAddress = {
