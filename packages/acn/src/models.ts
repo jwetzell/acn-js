@@ -120,6 +120,16 @@ export type SDTNakData = {
   lastMissedSequence: number;
 };
 
+export type SDTConnectData = {
+  protocolID: number;
+};
+
+export type SDTConnectAcceptData = SDTConnectData;
+export type SDTConnectRefuseData = {
+  protocolID: number;
+  refuseCode: number;
+};
+
 export type SDTGetSessionsData = {
   componentID: string;
 };
@@ -136,6 +146,9 @@ export type SessionDataTransportPDU = {
     | SDTLeavingData
     | SDTGetSessionsData
     | SDTNakData
+    | SDTConnectData
+    | SDTConnectAcceptData
+    | SDTConnectRefuseData
     | Uint8Array;
 };
 
