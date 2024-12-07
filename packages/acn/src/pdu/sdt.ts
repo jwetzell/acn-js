@@ -1,4 +1,4 @@
-import { SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
+import { Protocols, SDTAckData, SDTJoinAcceptData, SDTJoinData, SDTJoinRefuseData, SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
 import { toHex } from '../utils';
 
 // TODO(jwetzell): work out flag inheritance, will need previous PDU
@@ -41,106 +41,159 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
   const dataOffset = vectorOffset + 1;
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 1);
-  const data = bytes.subarray(dataOffset, dataOffset + dataLength);
-
-  switch (vector) {
-    case SessionDataTransportVectors.JOIN: {
-      const destinationAddress: TransportLayerAddress = {
-        type: view.getUint8(dataOffset + 30),
-      };
-
-      // TODO(jwetzell): handle IPv6, type === 2
-      if (destinationAddress.type === 1) {
-        // IPv4
-        destinationAddress.port = view.getUint16(dataOffset + 31);
-        destinationAddress.address = bytes.subarray(dataOffset + 33, dataOffset + 37).join('.');
-      }
-
-      const adhocExpiry = view.getUint8(dataOffset + 45);
-      const joinData = {
-        componentID: toHex(bytes.subarray(dataOffset, dataOffset + 16)),
-        memberID: view.getUint16(dataOffset + 16),
-        channelNumber: view.getUint16(dataOffset + 18),
-        reciprocalChannel: view.getUint16(dataOffset + 20),
-        totalSequenceNumber: view.getUint32(dataOffset + 22),
-        reliableSequenceNumber: view.getUint32(dataOffset + 26),
-        destinationAddress,
-        channelParameters: {
-          expiry: view.getUint8(dataOffset + 37),
-          nakOutboundFlag: view.getUint8(dataOffset + 38),
-          nakHoldoff: view.getUint16(dataOffset + 39),
-          nakModulus: view.getUint16(dataOffset + 41),
-          nakMaxWait: view.getUint16(dataOffset + 43),
-        },
-        adhocExpiry,
-      };
-      return {
-        vector,
-        data: joinData,
-      };
-    }
-    case SessionDataTransportVectors.JOIN_ACCEPT: {
-      const joinData = {
-        leaderComponentID: toHex(bytes.subarray(dataOffset, dataOffset + 16)),
-        channelNumber: view.getUint16(dataOffset + 16),
-        memberID: view.getUint16(dataOffset + 18),
-        reliableSequenceNumber: view.getUint32(dataOffset + 20),
-        reciprocalChannel: view.getUint16(dataOffset + 24),
-      };
-      return {
-        vector,
-        data: joinData,
-      };
-    }
-    case SessionDataTransportVectors.JOIN_REFUSE: {
-      const joinData = {
-        leaderComponentID: toHex(bytes.subarray(dataOffset, dataOffset + 16)),
-        channelNumber: view.getUint16(dataOffset + 16),
-        memberID: view.getUint16(dataOffset + 18),
-        reliableSequenceNumber: view.getUint32(dataOffset + 20),
-        refuseCode: view.getUint8(dataOffset + 24),
-      };
-
-      return {
-        vector,
-        data: joinData,
-      };
-    }
-    case SessionDataTransportVectors.REL_WRAP:
-    case SessionDataTransportVectors.UNREL_WRAP: {
-      const wrapperData: SDTWrapperData = {
-        channelNumber: view.getUint16(dataOffset),
-        totalSequenceNumber: view.getUint32(dataOffset + 2),
-        reliableSequenceNumber: view.getUint32(dataOffset + 6),
-        oldestAvailableWrapper: view.getUint32(dataOffset + 10),
-        firstMemberToAck: view.getUint16(dataOffset + 14),
-        lastMemberToAck: view.getUint16(dataOffset + 16),
-        makThreshold: view.getUint16(dataOffset + 18),
-        // TODO(jwetzell): actually decode client block
-        sdtClientBlock: bytes.subarray(dataOffset + 20),
-      };
-      return {
-        vector,
-        data: wrapperData,
-      };
-    }
-    case SessionDataTransportVectors.ACK: {
-      return {
-        vector,
-        data: {
-          reliableSequenceNumber: view.getUint32(dataOffset),
-        },
-      };
-    }
-    default:
-      console.error(`unhandled SDT vector: ${vector}`);
-      break;
-  }
+  const data = decodeData(vector, bytes.subarray(dataOffset, dataOffset + dataLength));
 
   return {
     vector,
     data,
   };
+}
+
+function decodeClientBlock(bytes: Uint8Array) {
+  if(bytes.byteLength === 0){
+    return undefined
+  }
+
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const flags = view.getUint8(0) >> 4;
+  const lengthFlag = ((flags >> 3) & 0x1) === 1;
+  const vectorFlag = ((flags >> 2) & 0x1) === 1;
+
+  if (!vectorFlag) {
+    throw new Error('SDT PDU must have a vector');
+  }
+
+  const dataFlag = (flags & 0x1) === 1;
+
+  if (!dataFlag) {
+    // TODO(jwetzell): idk if this is true
+    throw new Error('SDT PDU must have data');
+  }
+
+  const lengthH = view.getUint8(0) & 0x0f;
+  let lengthOffset = 1;
+  const lengthL = view.getUint8(lengthOffset);
+
+  let length = (lengthH << 8) + lengthL;
+  if (lengthFlag) {
+    lengthOffset += 1;
+    const lengthX = view.getUint8(lengthOffset);
+    length = (lengthH << 16) + (lengthL << 8) + lengthX;
+  }
+  let vectorOffset = lengthOffset + 1;
+
+  if (lengthFlag) {
+    vectorOffset += 1;
+  }
+
+  const memberID = view.getUint16(vectorOffset);
+
+
+  const headerOffset = vectorOffset + 2
+  const clientProtocol = view.getUint32(headerOffset)
+  const association = view.getUint16(headerOffset+4)
+
+
+  const dataOffset = headerOffset + 6;
+  // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
+  const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 2 + 6);
+  let data: SessionDataTransportPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength)
+
+
+  if(clientProtocol === Protocols.SDT){
+    data = decode(data)
+  } else {
+    console.error(`SDT client block contains unknown protocol: ${clientProtocol}`)
+  }
+  return {
+    memberID,
+    clientProtocol,
+    association,
+    data
+  }
+}
+
+
+function decodeData(vector: SessionDataTransportVectors, bytes: Uint8Array): SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | Uint8Array {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  switch (vector) {
+    case SessionDataTransportVectors.JOIN: {
+      const destinationAddress: TransportLayerAddress = {
+        type: view.getUint8(30),
+      };
+
+      // TODO(jwetzell): handle IPv6, type === 2
+      if (destinationAddress.type === 1) {
+        // IPv4
+        destinationAddress.port = view.getUint16(31);
+        destinationAddress.address = bytes.subarray(33, 37).join('.');
+      }
+
+      const adhocExpiry = view.getUint8(45);
+      const joinData = {
+        componentID: toHex(bytes.subarray(0, 16)),
+        memberID: view.getUint16(16),
+        channelNumber: view.getUint16(18),
+        reciprocalChannel: view.getUint16(20),
+        totalSequenceNumber: view.getUint32(22),
+        reliableSequenceNumber: view.getUint32(26),
+        destinationAddress,
+        channelParameters: {
+          expiry: view.getUint8(37),
+          nakOutboundFlag: view.getUint8(38),
+          nakHoldoff: view.getUint16(39),
+          nakModulus: view.getUint16(41),
+          nakMaxWait: view.getUint16(43),
+        },
+        adhocExpiry,
+      };
+      return joinData;
+    }
+    case SessionDataTransportVectors.JOIN_ACCEPT: {
+      const joinData = {
+        leaderComponentID: toHex(bytes.subarray(0, 16)),
+        channelNumber: view.getUint16(16),
+        memberID: view.getUint16(18),
+        reliableSequenceNumber: view.getUint32(20),
+        reciprocalChannel: view.getUint16(24),
+      };
+      return joinData;
+    }
+    case SessionDataTransportVectors.JOIN_REFUSE: {
+      const joinData = {
+        leaderComponentID: toHex(bytes.subarray(0, 16)),
+        channelNumber: view.getUint16(16),
+        memberID: view.getUint16(18),
+        reliableSequenceNumber: view.getUint32(20),
+        refuseCode: view.getUint8(24),
+      };
+
+      return joinData;
+    }
+    case SessionDataTransportVectors.REL_WRAP:
+    case SessionDataTransportVectors.UNREL_WRAP: {
+      const wrapperData: SDTWrapperData = {
+        channelNumber: view.getUint16(0),
+        totalSequenceNumber: view.getUint32(2),
+        reliableSequenceNumber: view.getUint32(6),
+        oldestAvailableWrapper: view.getUint32(10),
+        firstMemberToAck: view.getUint16(14),
+        lastMemberToAck: view.getUint16(16),
+        makThreshold: view.getUint16(18),
+        sdtClientBlock: decodeClientBlock(bytes.subarray(20)),
+      };
+
+      return wrapperData;
+    }
+    case SessionDataTransportVectors.ACK: {
+      return {
+        reliableSequenceNumber: view.getUint32(0),
+      };
+    }
+    default:
+      console.error(`unhandled SDT vector: ${vector}`);
+      return bytes;
+  }
 }
 
 export default {

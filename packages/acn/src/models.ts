@@ -1,5 +1,5 @@
-export type Protocols = {
-  SDT: 1;
+export enum Protocols {
+  SDT = 1
 };
 
 export type UDPPreamble = {
@@ -17,7 +17,7 @@ export type ACNPacket<PreambleType, PDUBlockType, PostambleType> = {
 export type RootLayerPDU = {
   vector: number;
   header: string;
-  data: Uint8Array;
+  data: SessionDataTransportPDU | Uint8Array;
 };
 
 export enum SessionDataTransportVectors {
@@ -96,7 +96,7 @@ export type SDTWrapperData = {
   firstMemberToAck: number;
   lastMemberToAck: number;
   makThreshold: number;
-  sdtClientBlock: Uint8Array;
+  sdtClientBlock?: SDTClientBlock;
 };
 
 export type SDTAckData = {
@@ -108,3 +108,10 @@ export type SessionDataTransportPDU = {
   // TODO(jwetzell): cleanup these types
   data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | Uint8Array;
 };
+
+export type SDTClientBlock = {
+  memberID: number
+  clientProtocol: number
+  association: number
+  data: SessionDataTransportPDU | Uint8Array
+}
