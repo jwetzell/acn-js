@@ -1,4 +1,4 @@
-import { SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
+import { SDTWrapperData, SessionDataTransportPDU, SessionDataTransportVectors, TransportLayerAddress } from '../models';
 import { toHex } from '../utils';
 
 // TODO(jwetzell): work out flag inheritance, will need previous PDU
@@ -25,7 +25,6 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
   const lengthL = view.getUint8(lengthOffset);
 
   let length = (lengthH << 8) + lengthL;
-  console.log('length', length);
   if (lengthFlag) {
     lengthOffset += 1;
     const lengthX = view.getUint8(lengthOffset);
@@ -105,6 +104,32 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
       return {
         vector,
         data: joinData,
+      };
+    }
+    case SessionDataTransportVectors.REL_WRAP:
+    case SessionDataTransportVectors.UNREL_WRAP: {
+      const wrapperData: SDTWrapperData = {
+        channelNumber: view.getUint16(dataOffset),
+        totalSequenceNumber: view.getUint32(dataOffset + 2),
+        reliableSequenceNumber: view.getUint32(dataOffset + 6),
+        oldestAvailableWrapper: view.getUint32(dataOffset + 10),
+        firstMemberToAck: view.getUint16(dataOffset + 14),
+        lastMemberToAck: view.getUint16(dataOffset + 16),
+        makThreshold: view.getUint16(dataOffset + 18),
+        // TODO(jwetzell): actually decode client block
+        sdtClientBlock: bytes.subarray(dataOffset + 20),
+      };
+      return {
+        vector,
+        data: wrapperData,
+      };
+    }
+    case SessionDataTransportVectors.ACK: {
+      return {
+        vector,
+        data: {
+          reliableSequenceNumber: view.getUint32(dataOffset),
+        },
       };
     }
     default:

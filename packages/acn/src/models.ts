@@ -88,8 +88,23 @@ export type SDTJoinRefuseData = {
   refuseCode: number;
 };
 
+export type SDTWrapperData = {
+  channelNumber: number;
+  totalSequenceNumber: number;
+  reliableSequenceNumber: number;
+  oldestAvailableWrapper: number;
+  firstMemberToAck: number;
+  lastMemberToAck: number;
+  makThreshold: number;
+  sdtClientBlock: Uint8Array;
+};
+
+export type SDTAckData = {
+  reliableSequenceNumber: number;
+};
+
 export type SessionDataTransportPDU = {
   vector: SessionDataTransportVectors;
   // TODO(jwetzell): cleanup these types
-  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData| Uint8Array;
+  data: SDTJoinData | SDTJoinAcceptData | SDTJoinRefuseData | SDTWrapperData | SDTAckData | Uint8Array;
 };
