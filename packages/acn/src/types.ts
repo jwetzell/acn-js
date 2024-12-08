@@ -15,7 +15,7 @@ export type ACNPacket<PreambleType, PDUBlockType, PostambleType> = {
 export type RootLayerPDU = {
   vector: number;
   header: string;
-  data: SessionDataTransportPDU | Uint8Array;
+  data: SessionDataTransportPDU[] | Uint8Array;
 };
 
 export type SDTChannelParams = {
@@ -114,6 +114,7 @@ export type SDTGetSessionsData = {
 
 export type SessionDataTransportPDU = {
   vector: SDTVector;
+  length: number;
   // TODO(jwetzell): cleanup these types
   data:
     | SDTJoinData

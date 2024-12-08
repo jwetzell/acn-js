@@ -62,6 +62,7 @@ export function decode(bytes: Uint8Array): SessionDataTransportPDU {
 
   return {
     vector,
+    length,
     data,
   };
 }
