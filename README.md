@@ -20,7 +20,7 @@ not sure how far I will take this but messing around with E1.17 ACN protocol
     - [x] CONNECT
     - [x] CONNECT_ACCEPT
     - [x] CONNECT_REFUSE
-    - [ ] DISCONNECT
-    - [ ] DISCONNECTING
+    - [x] DISCONNECT
+    - [x] DISCONNECTING
 - dmp
 - ddl
