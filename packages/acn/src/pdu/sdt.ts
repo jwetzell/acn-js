@@ -1,5 +1,7 @@
+import pdu from '.';
 import { Protocol, SDTVector } from '../enums';
 import {
+  DeviceManagementProtocolPDU,
   SDTAckData,
   SDTConnectAcceptData,
   SDTConnectData,
@@ -113,10 +115,12 @@ function decodeClientBlock(bytes: Uint8Array) {
   const dataOffset = headerOffset + 6;
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 2 + 6);
-  let data: SessionDataTransportPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength);
+  let data: SessionDataTransportPDU | DeviceManagementProtocolPDU | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength);
 
   if (clientProtocol === Protocol.SDT) {
     data = decode(data);
+  } else if (clientProtocol === Protocol.DMP) {
+    data = pdu.dmp.decode(data)
   } else {
     console.error(`SDT client block contains unknown protocol: ${clientProtocol}`);
   }

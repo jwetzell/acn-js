@@ -1,5 +1,6 @@
 export enum Protocol {
   SDT = 1,
+  DMP,
 }
 
 export enum SDTVector {
@@ -20,6 +21,26 @@ export enum SDTVector {
   NAK,
   GET_SESSIONS,
   SESSIONS,
+}
+
+export enum DMPVector {
+  GET_PROPERTY = 1,
+  SET_PROPERTY,
+  GET_PROPERTY_REPLY,
+  EVENT,
+  RESERVED_1,
+  RESERVED_2,
+  SUBSCRIBE,
+  UNSUBSCRIBE,
+  GET_PROPERTY_FAIL,
+  SET_PROPERTY_FAIL,
+  RESERVED_3,
+  SUBSCRIBE_ACCEPT,
+  SUBSCRIBE_REJECT,
+  RESERVED_4,
+  RESERVED_5,
+  RESERVED_6,
+  SYNC_EVENT,
 }
 
 export enum TransportLayerAddressType {

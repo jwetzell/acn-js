@@ -1,7 +1,7 @@
 # acn-js
 not sure how far I will take this but messing around with E1.17 ACN protocol
 
-## areas
+## packet decoding
 - rlp
 - sdt
   - vectors    
@@ -23,4 +23,16 @@ not sure how far I will take this but messing around with E1.17 ACN protocol
     - [x] DISCONNECT
     - [x] DISCONNECTING
 - dmp
+  - vectors    
+    - [ ] GET_PROPERTY
+    - [ ] SET_PROPERTY
+    - [ ] GET_PROPERTY_REPLY
+    - [ ] EVENT
+    - [ ] SUBSCRIBE
+    - [ ] UNSUBSCRIBE
+    - [ ] GET_PROPERTY_FAIL
+    - [ ] SET_PROPERTY_FAIL
+    - [ ] SUBSCRIBE_ACCEPT
+    - [ ] SUBSCRIBE_REJECT
+    - [ ] SYNC_EVENT
 - ddl

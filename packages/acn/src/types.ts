@@ -1,4 +1,4 @@
-import { TransportLayerAddressType, SDTVector, SDTReasonCode } from './enums';
+import { TransportLayerAddressType, SDTVector, SDTReasonCode, DMPVector } from './enums';
 
 export type UDPPreamble = {
   preambleSize: number;
@@ -133,9 +133,26 @@ export type SessionDataTransportPDU = {
     | Uint8Array;
 };
 
+export type DMPAddressDataType = {
+  addressType: number;
+  dataType: number;
+  elementSize: number;
+};
+
+export type DMPGetPropertyData = {
+  address: number
+}
+
+export type DMPSubscribePropertyData = DMPGetPropertyData
+
+export type DeviceManagementProtocolPDU = {
+  vector: DMPVector;
+  data: DMPGetPropertyData | DMPSubscribePropertyData | Uint8Array;
+};
+
 export type SDTClientBlock = {
   memberID: number;
   clientProtocol: number;
   association: number;
-  data: SessionDataTransportPDU | Uint8Array;
+  data: SessionDataTransportPDU | DeviceManagementProtocolPDU | Uint8Array;
 };
