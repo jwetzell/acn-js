@@ -1,4 +1,4 @@
-import { ACNPacket, RootLayerPDU, UDPPreamble } from './models';
+import { ACNPacket, RootLayerPDU, UDPPreamble } from './types';
 import pdu from './pdu';
 
 // ANSI E1.17 - 2015 (R2020) EPI 17

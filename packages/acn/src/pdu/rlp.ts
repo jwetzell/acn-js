@@ -1,4 +1,6 @@
-import { RootLayerPDU } from '../models';
+import pdu from '.';
+import { Protocol } from '../enums';
+import { RootLayerPDU, SessionDataTransportPDU } from '../types';
 import { toHex } from '../utils';
 
 function decode(bytes: Uint8Array): RootLayerPDU {
@@ -49,7 +51,22 @@ function decode(bytes: Uint8Array): RootLayerPDU {
   const dataOffset = headerOffset + 16;
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 4 + 16);
-  const data = bytes.subarray(dataOffset, dataOffset + dataLength);
+  let data: SessionDataTransportPDU[] | Uint8Array = bytes.subarray(dataOffset, dataOffset + dataLength);
+
+  if (vector === Protocol.SDT) {
+    const blocks: SessionDataTransportPDU[] = [];
+
+    let blockDataOffset = 0;
+    // TODO(jwetzell): this could blow up so might need some attention later?
+    while (blockDataOffset < dataLength) {
+      const blockData = pdu.sdt.decode(bytes.subarray(dataOffset + blockDataOffset));
+      blocks.push(blockData);
+      blockDataOffset += blockData.length;
+    }
+    data = blocks;
+  } else {
+    console.error(`unhandled protocol in RLP: ${vector}`);
+  }
 
   return {
     vector,

@@ -20,10 +20,33 @@ const goodTests = [
       pduBlock: {
         vector: 1,
         header: 'b0abd82a20d24240a7cd3e49d999a4e5',
-        data: new Uint8Array([
-          112, 50, 4, 73, 136, 131, 52, 255, 255, 74, 69, 176, 66, 102, 183, 33, 235, 216, 155, 0, 1, 244, 136, 0, 0, 0,
-          0, 244, 136, 0, 0, 244, 136, 1, 67, 216, 239, 192, 220, 207, 5, 0, 0, 2, 0, 10, 0, 20, 1, 44,
-        ]),
+        data: [
+          {
+            vector: 4,
+            length: 50,
+            data: {
+              componentID: '49888334ffff4a45b04266b721ebd89b',
+              memberID: 1,
+              channelNumber: 62600,
+              reciprocalChannel: 0,
+              totalSequenceNumber: 62600,
+              reliableSequenceNumber: 62600,
+              destinationAddress: {
+                type: 1,
+                port: 17368,
+                address: '239.192.220.207'
+              },
+              channelParameters: {
+                expiry: 5,
+                nakOutboundFlag: 0,
+                nakHoldoff: 2,
+                nakModulus: 10,
+                nakMaxWait: 20
+              },
+              adhocExpiry: 1,
+            }
+          }
+        ],
       },
       postamble: undefined,
     },
@@ -71,7 +94,9 @@ const badTests = [
 describe('ACN Message Decoding Pass', () => {
   goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
+      console.log(JSON.stringify(messageTest.expected))
       const decoded = acn.decode(messageTest.bytes);
+      console.log(JSON.stringify(decoded))
       deepEqual(decoded, messageTest.expected);
     });
   });
