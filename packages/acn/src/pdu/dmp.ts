@@ -9,14 +9,14 @@ export function decode(bytes: Uint8Array): DeviceManagementProtocolPDU {
   const headerFlag = ((flags >> 1) & 0x1) === 1;
 
   if (!vectorFlag) {
-    throw new Error('SDT PDU must have a vector');
+    throw new Error('DMP PDU must have a vector');
   }
 
   const dataFlag = (flags & 0x1) === 1;
 
   if (!dataFlag) {
     // TODO(jwetzell): idk if this is true
-    throw new Error('SDT PDU must have data');
+    throw new Error('DMP PDU must have data');
   }
 
   const lengthH = view.getUint8(0) & 0x0f;
@@ -54,7 +54,7 @@ export function decode(bytes: Uint8Array): DeviceManagementProtocolPDU {
   // NOTE(jwetzell): flags/lengthH + lengthL + lengthX + vector + header
   const dataLength = length - (1 + 1 + (lengthFlag ? 1 : 0) + 1 + 1);
   const data = decodeData(vector, bytes.subarray(dataOffset, dataOffset + dataLength), addressAndDataType);
-  console.log('decoded Data', data)
+  console.log('dmp: decoded Data', data)
   return {
     vector,
     data
@@ -63,8 +63,8 @@ export function decode(bytes: Uint8Array): DeviceManagementProtocolPDU {
 
 function decodeData(vector: number, bytes: Uint8Array, addressAndDataType: DMPAddressDataType): DMPGetPropertyData | Uint8Array {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  console.log('pdu bytes', bytes)
-  console.log('pdu address data type', addressAndDataType)
+  console.log('dmp: pdu bytes', bytes)
+  console.log('dmp: pdu address data type', addressAndDataType)
   switch (vector) {
     default:
       console.error(`unhandled DMP vector: ${vector}`);
