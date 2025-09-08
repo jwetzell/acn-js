@@ -1,5 +1,6 @@
 export enum Protocol {
   SDT = 1,
+  E131 = 4,
 }
 
 export enum SDTVector {
