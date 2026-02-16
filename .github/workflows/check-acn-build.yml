@@ -3,8 +3,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'packages/acn/**'
 jobs:
   build-webui:
     runs-on: ubuntu-latest
