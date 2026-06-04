@@ -1,5 +1,5 @@
 import { Protocol, SDTVector } from '../enums';
-import {
+import type {
   SDTAckData,
   SDTConnectAcceptData,
   SDTConnectData,

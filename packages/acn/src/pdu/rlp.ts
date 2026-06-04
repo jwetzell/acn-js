@@ -1,6 +1,6 @@
 import pdu from '.';
 import { Protocol } from '../enums';
-import { RootLayerPDU, SessionDataTransportPDU } from '../types';
+import type { RootLayerPDU, SessionDataTransportPDU } from '../types';
 import { toHex } from '../utils';
 
 function decode(bytes: Uint8Array): RootLayerPDU {

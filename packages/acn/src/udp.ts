@@ -1,5 +1,5 @@
-import { ACNPacket, RootLayerPDU, UDPPreamble } from './types';
 import pdu from './pdu';
+import type { ACNPacket, RootLayerPDU, UDPPreamble } from './types';
 
 // ANSI E1.17 - 2015 (R2020) EPI 17
 export function decode(bytes: Uint8Array): ACNPacket<UDPPreamble, RootLayerPDU, undefined> {
