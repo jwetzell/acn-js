@@ -1,6 +1,6 @@
 const { deepEqual, throws } = require('assert');
 const { describe, it } = require('node:test');
-const acn = require('../dist/cjs/index');
+const acn = require('../');
 
 const goodTests = [
   {
@@ -34,18 +34,18 @@ const goodTests = [
               destinationAddress: {
                 type: 1,
                 port: 17368,
-                address: '239.192.220.207'
+                address: '239.192.220.207',
               },
               channelParameters: {
                 expiry: 5,
                 nakOutboundFlag: 0,
                 nakHoldoff: 2,
                 nakModulus: 10,
-                nakMaxWait: 20
+                nakMaxWait: 20,
               },
               adhocExpiry: 1,
-            }
-          }
+            },
+          },
         ],
       },
       postamble: undefined,
@@ -94,9 +94,9 @@ const badTests = [
 describe('ACN Message Decoding Pass', () => {
   goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
-      console.log(JSON.stringify(messageTest.expected))
+      console.log(JSON.stringify(messageTest.expected));
       const decoded = acn.decode(messageTest.bytes);
-      console.log(JSON.stringify(decoded))
+      console.log(JSON.stringify(decoded));
       deepEqual(decoded, messageTest.expected);
     });
   });
